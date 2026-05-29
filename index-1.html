@@ -1784,27 +1784,34 @@ function importData(event) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (data.products) { products = data.products; saveData('jw_products', products); }
-      if (data.company)  { company  = data.company;  saveData('jw_company', company); }
-      if (data.pw)       { adminPw  = data.pw;        saveData('jw_pw', adminPw); }
-      if (data.seq)      { quoteSeq = data.seq;       saveData('jw_seq', quoteSeq); }
-      // 전체 UI 갱신
-      buildCat1();
-      renderAdminTree();
-      loadCompanyToForm();
-      loadCompanyToPreview();
-      updatePreview();
-      // 드롭다운 초기화
-      const cat2 = document.getElementById('cat2');
-      const cat3 = document.getElementById('cat3');
-      cat2.innerHTML = '<option value="">-- 중분류 선택 --</option>';
-      cat3.innerHTML = '<option value="">-- 소분류 선택 --</option>';
-      cat2.disabled = true;
-      cat3.disabled = true;
-      document.getElementById('selectedPrice').textContent = '—';
-      location.reload();
-    } catch(err) { alert('JSON 파일 형식이 올바르지 않습니다.'); }
+      const raw = e.target.result;
+      const data = JSON.parse(raw);
+
+      // localStorage 에 직접 저장
+      if (data.products && Array.isArray(data.products)) {
+        localStorage.setItem('jw_products', JSON.stringify(data.products));
+      }
+      if (data.company) {
+        localStorage.setItem('jw_company', JSON.stringify(data.company));
+      }
+      if (data.pw) {
+        localStorage.setItem('jw_pw', JSON.stringify(data.pw));
+      }
+      if (data.seq) {
+        localStorage.setItem('jw_seq', JSON.stringify(data.seq));
+      }
+
+      // 저장 확인
+      const check = localStorage.getItem('jw_products');
+      if (check) {
+        alert('복원 완료! 대분류 ' + JSON.parse(check).length + '개 - 새로고침합니다.');
+        setTimeout(function() { location.reload(); }, 500);
+      } else {
+        alert('저장 실패! 브라우저 설정을 확인해 주세요.');
+      }
+    } catch(err) {
+      alert('오류: ' + err.message);
+    }
   };
   reader.readAsText(file);
 }
