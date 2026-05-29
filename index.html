@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>주원엔지니어링 자동견적서</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B3E6F;
+    --navy-dark: #122d52;
+    --navy-light: #2a5298;
+    --gold: #C8922A;
+    --gold-light: #E8A020;
+    --bg: #EEF2F7;
+    --white: #ffffff;
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-300: #CBD5E1;
+    --gray-400: #94A3B8;
+    --gray-600: #475569;
+    --gray-800: #1E293B;
+    --text: #1E293B;
+    --red: #DC2626;
+    --green: #16A34A;
+    --shadow: 0 4px 24px rgba(27,62,111,0.10);
+    --shadow-lg: 0 8px 40px rgba(27,62,111,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 0 28px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--gold);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; color: white;
+    letter-spacing: -1px;
+  }
+  .header-title {
+    display: flex; flex-direction: column;
+  }
+  .header-title strong {
+    font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .header-title span {
+    font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 1px;
+  }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .btn-admin {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-admin:hover { background: rgba(255,255,255,0.22); }
+
+  /* ── MAIN LAYOUT ── */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    flex: 1;
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* ── PANELS ── */
+  .panel {
+    background: var(--white);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-header {
+    background: var(--navy);
+    color: white;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-header .dot {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+  .panel-body { padding: 20px; flex: 1; overflow-y: auto; }
+
+  /* ── CUSTOMER INFO ── */
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--navy);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-600);
+    letter-spacing: 0.5px;
+  }
+  .form-group input, .form-group textarea, .form-group select {
+    border: 1.5px solid var(--gray-200);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--gray-50);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(27,62,111,0.1);
+    background: white;
+  }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+
+  /* ── PRODUCT SELECTOR ── */
+  .select-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .qty-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: end;
+  }
+  .price-preview {
+    background: var(--gray-100);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--gray-600);
+    margin-bottom: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .price-preview .price-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    border: none; border-radius: 7px;
+    padding: 9px 18px;
+    font-size: 13px; font-family: inherit; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary {
+    background: var(--navy); color: white;
+  }
+  .btn-primary:hover { background: var(--navy-dark); transform: translateY(-1px); }
+  .btn-gold {
+    background: var(--gold); color: white;
+  }
+  .btn-gold:hover { background: #b8821f; transform: translateY(-1px); }
+  .btn-outline {
+    background: white; color: var(--navy);
+    border: 1.5px solid var(--navy);
+  }
+  .btn-outline:hover { background: var(--navy); color: white; }
+  .btn-danger { background: #FEE2E2; color: var(--red); }
+  .btn-danger:hover { background: var(--red); color: white; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-full { width: 100%; justify-content: center; }
+
+  /* ── ADDED ITEMS TABLE ── */
+  .items-table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .items-table th {
+    background: var(--navy);
+    color: white;
+    padding: 9px 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .items-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--gray-200);
+    text-align: center;
+    vertical-align: middle;
+  }
+  .items-table tr:nth-child(even) td { background: var(--gray-50); }
+  .items-table tr:hover td { background: #EBF0FA; }
+  .items-table td.name-cell { text-align: left; font-weight: 500; }
+  .items-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .empty-row td {
+    padding: 30px;
+    text-align: center;
+    color: var(--gray-400);
+    font-size: 13px;
+  }
+
+  /* ── TOTALS (LEFT) ── */
+  .totals-box {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: white;
+    margin-top: 12px;
+  }
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 13px;
+  }
+  .total-row.grand {
+    border-top: 1px solid rgba(255,255,255,0.3);
+    margin-top: 8px;
+    padding-top: 12px;
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .total-row .label { color: rgba(255,255,255,0.8); }
+  .total-row .val { font-variant-numeric: tabular-nums; }
+  .total-row.grand .val { color: var(--gold-light); }
+
+  /* ── RIGHT PANEL: PREVIEW ── */
+  .quote-preview {
+    background: white;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 12px;
+    color: #111;
+    padding: 28px;
+  }
+  .quote-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .quote-company-name {
+    font-size: 13px; font-weight: 700; color: var(--navy);
+    margin-bottom: 4px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .quote-company-info { font-size: 10px; color: #555; line-height: 1.7; }
+  .quote-title-block { text-align: right; }
+  .quote-title {
+    font-size: 26px; font-weight: 700; color: var(--navy);
+    letter-spacing: 6px;
+    font-family: 'Noto Serif KR', serif;
+  }
+  .quote-num {
+    font-size: 11px; color: #666; margin-top: 4px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  .quote-divider {
+    height: 3px;
+    background: linear-gradient(90deg, var(--navy) 60%, var(--gold) 100%);
+    margin: 12px 0;
+    border-radius: 2px;
+  }
+
+  .quote-parties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .party-box {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 11px;
+  }
+  .party-box-header {
+    background: var(--navy);
+    color: white;
+    padding: 5px 10px;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 1px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .party-box-body { padding: 8px 10px; line-height: 1.8; }
+  .party-row { display: flex; gap: 6px; }
+  .party-label { color: #888; width: 52px; flex-shrink: 0; font-size: 10px; }
+  .party-val { font-weight: 500; color: #222; }
+
+  .quote-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-bottom: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .quote-table th {
+    background: var(--navy);
+    color: white;
+    padding: 7px 6px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+  .quote-table td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .quote-table td.q-name { text-align: left; }
+  .quote-table td.q-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .quote-table tr:nth-child(even) td { background: #f9f9f9; }
+  .quote-table .empty-msg td {
+    padding: 20px; text-align: center; color: #aaa; font-style: italic;
+  }
+
+  .quote-totals {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+  }
+  .quote-totals-inner {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    min-width: 220px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .qt-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid #eee;
+  }
+  .qt-row:last-child { border-bottom: none; }
+  .qt-row.qt-grand {
+    background: var(--navy);
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .qt-row .qt-val { font-variant-numeric: tabular-nums; text-align: right; }
+
+  .quote-remarks {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 11px;
+    font-family: 'Noto Sans KR', sans-serif;
+    margin-bottom: 14px;
+  }
+  .remarks-header {
+    background: var(--gray-100);
+    padding: 5px 10px;
+    font-weight: 600;
+    font-size: 10px;
+    color: var(--navy);
+    border-bottom: 1px solid #ddd;
+    letter-spacing: 0.5px;
+  }
+  .remarks-body { padding: 8px 10px; color: #444; line-height: 1.8; white-space: pre-wrap; min-height: 40px; }
+
+  .quote-stamp-row {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .quote-stamp {
+    width: 70px; height: 70px;
+    border: 2px solid var(--navy);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    color: var(--navy);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.5px;
+    opacity: 0.35;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  /* ── RIGHT PANEL ACTION ── */
+  .right-actions {
+    padding: 16px 20px;
+    border-top: 1px solid var(--gray-200);
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 680px;
+    max-height: 88vh;
+    overflow-y: auto;
+    animation: fadeUp 0.25s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(20px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  .modal-header {
+    background: var(--navy);
+    color: white;
+    padding: 16px 22px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-radius: 14px 14px 0 0;
+  }
+  .modal-header h3 { font-size: 15px; font-weight: 700; }
+  .modal-close {
+    background: none; border: none; color: white;
+    font-size: 20px; cursor: pointer; line-height: 1;
+    padding: 0 4px;
+  }
+  .modal-body { padding: 22px; }
+  .modal-tabs {
+    display: flex; gap: 4px; margin-bottom: 20px;
+    border-bottom: 2px solid var(--gray-200);
+    padding-bottom: 0;
+  }
+  .modal-tab {
+    padding: 8px 16px; font-size: 13px; font-weight: 600;
+    color: var(--gray-400); cursor: pointer;
+    border: none; background: none; font-family: inherit;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px; transition: all 0.2s;
+  }
+  .modal-tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .admin-section { margin-bottom: 24px; }
+  .admin-section-title {
+    font-size: 12px; font-weight: 700; color: var(--navy);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 12px; padding-bottom: 6px;
+    border-bottom: 1.5px solid var(--gray-200);
+  }
+
+  .product-tree { font-size: 13px; }
+  .tree-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 10px; border-radius: 6px;
+    margin-bottom: 3px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .tree-item:hover { background: var(--gray-100); }
+  .tree-item .tree-label { font-weight: 500; }
+  .tree-item .tree-actions { display: flex; gap: 4px; }
+  .tree-l1 { border-left: 3px solid var(--navy); padding-left: 12px; }
+  .tree-l2 { border-left: 3px solid var(--gold); padding-left: 22px; background: var(--gray-50); }
+  .tree-l3 { border-left: 3px solid var(--gray-300); padding-left: 32px; }
+  .tree-l3 .price { color: var(--navy); font-weight: 600; font-size: 12px; }
+
+  .add-form {
+    background: var(--gray-50);
+    border: 1.5px dashed var(--gray-300);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 12px;
+    display: none;
+  }
+  .add-form.open { display: block; }
+  .add-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .add-form-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* ── LOGIN MODAL ── */
+  .login-box {
+    max-width: 340px; margin: 0 auto; text-align: center;
+  }
+  .login-box h4 { font-size: 18px; color: var(--navy); margin-bottom: 6px; }
+  .login-box p { font-size: 13px; color: var(--gray-600); margin-bottom: 20px; }
+  .login-box input {
+    width: 100%;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    text-align: center;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .login-box input:focus { border-color: var(--navy); }
+  .login-error { color: var(--red); font-size: 12px; margin-top: -8px; margin-bottom: 10px; display:none; }
+
+  /* ── PRINT ── */
+  @media print {
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: auto;
+      font-size: 11px;
+      background: white;
+      padding: 20mm;
+    }
+    .quote-preview { padding: 0 !important; }
+  }
+
+  /* ── MOBILE TAB NAV ── */
+  .mobile-tab-nav {
+    display: flex;
+    background: var(--navy-dark);
+    padding: 10px 16px;
+    gap: 8px;
+    position: sticky;
+    top: 60px;
+    z-index: 90;
+  }
+  .mobile-tab-btn {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+  }
+  .mobile-tab-btn.active {
+    background: var(--gold);
+    color: white;
+  }
+
+  /* ── PC에서 탭 숨김 ── */
+  @media (min-width: 901px) {
+    .mobile-tab-nav { display: none; }
+    #panelInput, #panelPreview { display: flex !important; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    header { padding: 0 16px; height: 54px; }
+    .header-title strong { font-size: 13px; }
+    .header-title span { display: none; }
+    .btn-admin { padding: 6px 12px; font-size: 12px; }
+
+    .main-layout {
+      grid-template-columns: 1fr;
+      padding: 12px;
+      gap: 0;
+    }
+
+    /* 탭 전환으로 패널 숨김 */
+    .panel { display: none; border-radius: 12px; }
+    .panel.tab-active { display: flex; }
+
+    /* 입력폼 터치 최적화 */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      font-size: 16px; /* iOS 자동확대 방지 */
+      padding: 11px 14px;
+      min-height: 44px;
+    }
+    .form-group select { min-height: 48px; }
+    .form-group label { font-size: 12px; }
+
+    .select-row { grid-template-columns: 1fr; gap: 8px; }
+    .qty-row { grid-template-columns: 1fr 1fr; }
+    .qty-row .btn { margin-top: 20px; height: 44px; }
+
+    .btn { min-height: 44px; font-size: 14px; }
+    .btn-sm { min-height: 36px; font-size: 12px; }
+
+    .section-title { font-size: 11px; }
+
+    .items-table { font-size: 12px; }
+    .items-table th, .items-table td { padding: 7px 5px; }
+
+    .totals-box { padding: 14px 16px; }
+    .total-row { font-size: 13px; }
+    .total-row.grand { font-size: 15px; }
+
+    .right-actions { padding: 12px 16px; }
+    .right-actions .btn { font-size: 15px; min-height: 48px; }
+
+    .quote-preview { padding: 16px; }
+    .quote-title { font-size: 20px; letter-spacing: 3px; }
+    .quote-table { font-size: 10px; }
+    .quote-table th, .quote-table td { padding: 5px 4px; }
+
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid .form-group.full { grid-column: 1; }
+
+    .panel-body { padding: 14px; }
+  }
+
+  @media (max-width: 480px) {
+    .quote-parties { grid-template-columns: 1fr; }
+    .party-box { font-size: 10px; }
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--gold);
+    color: white;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+
+  select option:disabled { color: var(--gray-400); }
+
+  .sep { height: 1px; background: var(--gray-200); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-logo">
+    <div class="logo-mark">JW</div>
+    <div class="header-title">
+      <strong>주원엔지니어링</strong>
+      <span>AUTO QUOTATION SYSTEM</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-admin" onclick="openLoginModal()">🔐 관리자 설정</button>
+  </div>
+</header>
+
+<!-- ── MOBILE TAB NAV ── -->
+<nav class="mobile-tab-nav">
+  <button class="mobile-tab-btn active" id="mTabInput" onclick="switchMobileTab('input')">✏️ 견적 입력</button>
+  <button class="mobile-tab-btn" id="mTabPreview" onclick="switchMobileTab('preview')">📄 견적서 보기</button>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main-layout">
+
+  <!-- ── LEFT: INPUT PANEL ── -->
+  <div class="panel tab-active" id="panelInput">
+    <div class="panel-header">
+      <div class="dot"></div>
+      견적 입력 패널
+    </div>
+    <div class="panel-body" id="leftPanel">
+
+      <!-- 고객 정보 -->
+      <div class="section-title">📋 고객 / 현장 정보</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>고객명 (수신처)</label>
+          <input type="text" id="customerName" placeholder="(주)○○○" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>담당자</label>
+          <input type="text" id="customerManager" placeholder="홍길동 과장" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>현장명</label>
+          <input type="text" id="siteName" placeholder="○○○ 현장" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>연락처</label>
+          <input type="text" id="customerTel" placeholder="02-0000-0000" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>견적일자</label>
+          <input type="date" id="quoteDate" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>견적번호</label>
+          <input type="text" id="quoteNum" readonly style="background:#f0f4fa;color:#666;">
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <!-- 품목 선택 -->
+      <div class="section-title">🔧 공조기 품목 선택</div>
+      <div class="select-row">
+        <div class="form-group">
+          <label>대분류</label>
+          <select id="cat1" onchange="onCat1Change()">
+            <option value="">-- 선택 --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>중분류</label>
+          <select id="cat2" onchange="onCat2Change()" disabled>
+            <option value="">-- 선택 --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>소분류 / 모델</label>
+          <select id="cat3" onchange="onCat3Change()" disabled>
+            <option value="">-- 선택 --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="price-preview">
+        <span>선택 단가</span>
+        <span class="price-val" id="selectedPrice">—</span>
+      </div>
+
+      <div class="qty-row">
+        <div class="form-group">
+          <label>수량</label>
+          <input type="number" id="itemQty" value="1" min="1" oninput="calcItemSubtotal()">
+        </div>
+        <div class="form-group">
+          <label>소계</label>
+          <input type="text" id="itemSubtotal" readonly placeholder="0 원" style="font-weight:700;color:var(--navy);">
+        </div>
+        <button class="btn btn-gold" onclick="addItem()" style="height:36px;margin-top:20px;">+ 추가</button>
+      </div>
+
+      <div class="sep"></div>
+
+      <!-- 추가된 품목 -->
+      <div class="section-title">📦 견적 품목 목록 <span class="badge" id="itemCount">0</span></div>
+      <div class="items-table-wrap">
+        <table class="items-table" id="itemTable">
+          <thead>
+            <tr>
+              <th style="width:28px">No</th>
+              <th>품명 / 규격</th>
+              <th style="width:42px">수량</th>
+              <th style="width:80px">단가</th>
+              <th style="width:80px">금액</th>
+              <th style="width:32px">삭</th>
+            </tr>
+          </thead>
+          <tbody id="itemTbody">
+            <tr class="empty-row">
+              <td colspan="6">품목을 선택하여 추가해 주세요</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 합계 -->
+      <div class="totals-box">
+        <div class="total-row">
+          <span class="label">공급가액 (소계)</span>
+          <span class="val" id="totalSupply">0 원</span>
+        </div>
+        <div class="total-row" style="align-items:center;gap:8px;">
+          <span class="label" style="white-space:nowrap;">할인율 (%)</span>
+          <input type="number" id="discountRate" value="0" min="0" max="100"
+            oninput="calcTotals();updatePreview();"
+            style="width:64px;padding:3px 8px;border-radius:5px;border:none;
+                   font-size:13px;font-family:inherit;text-align:center;background:rgba(255,255,255,0.15);
+                   color:white;outline:none;">
+          <span class="label" style="white-space:nowrap;">할인금액</span>
+          <span class="val" id="totalDiscount" style="color:#fcd34d;">- 0 원</span>
+        </div>
+        <div class="total-row">
+          <span class="label">부가세 (VAT 10%)</span>
+          <span class="val" id="totalVat">0 원</span>
+        </div>
+        <div class="total-row grand">
+          <span>합 계</span>
+          <span class="val" id="totalGrand">0 원</span>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <!-- 공사기간 + 특기사항 -->
+      <div class="section-title">📅 공사기간</div>
+      <div class="form-grid" style="margin-bottom:16px;">
+        <div class="form-group">
+          <label>착공 예정일</label>
+          <input type="date" id="workStart" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>준공 예정일</label>
+          <input type="date" id="workEnd" oninput="updatePreview()">
+        </div>
+        <div class="form-group full">
+          <label>공사기간 (직접입력 가능)</label>
+          <input type="text" id="workPeriod" placeholder="예: 착공 후 30일 / 협의 후 결정"
+            oninput="updatePreview()">
+        </div>
+      </div>
+
+      <div class="section-title">📝 특기사항 / 견적조건</div>
+      <div class="form-group">
+        <textarea id="remarks" rows="4"
+          placeholder="유효기간: 견적일로부터 30일&#10;납기: 계약 후 협의&#10;결제조건: 계약금 50%, 잔금 50%&#10;기타 조건을 입력하세요"
+          oninput="updatePreview()"></textarea>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="resetAll()">🗑 전체 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: PREVIEW PANEL ── -->
+  <div class="panel" id="panelPreview">
+    <div class="panel-header">
+      <div class="dot"></div>
+      견적서 미리보기
+    </div>
+
+    <div class="panel-body" style="padding:0;">
+      <div id="printArea">
+        <div class="quote-preview">
+
+          <!-- 상단 -->
+          <div class="quote-top">
+            <div>
+              <div class="quote-company-name" id="pv-companyName">주원엔지니어링 (주)</div>
+              <div class="quote-company-info" id="pv-companyInfo">
+                대표: 홍길동 &nbsp;|&nbsp; 사업자: 000-00-00000<br>
+                서울특별시 ○○구 ○○로 000<br>
+                TEL: 02-0000-0000 &nbsp;|&nbsp; FAX: 02-0000-0000
+              </div>
+            </div>
+            <div class="quote-title-block">
+              <div class="quote-title">견  적  서</div>
+              <div class="quote-num" id="pv-quoteNum">JW-2026-001</div>
+              <div class="quote-num" id="pv-quoteDate"></div>
+            </div>
+          </div>
+
+          <div class="quote-divider"></div>
+
+          <!-- 수신/공급자 -->
+          <div class="quote-parties">
+            <div class="party-box">
+              <div class="party-box-header">▶ 수 신 처</div>
+              <div class="party-box-body">
+                <div class="party-row"><span class="party-label">상 호</span><span class="party-val" id="pv-custName">—</span></div>
+                <div class="party-row"><span class="party-label">현 장 명</span><span class="party-val" id="pv-siteName">—</span></div>
+                <div class="party-row"><span class="party-label">담 당 자</span><span class="party-val" id="pv-custMgr">—</span></div>
+                <div class="party-row"><span class="party-label">연 락 처</span><span class="party-val" id="pv-custTel">—</span></div>
+              </div>
+            </div>
+            <div class="party-box">
+              <div class="party-box-header">▶ 공 급 자</div>
+              <div class="party-box-body">
+                <div class="party-row"><span class="party-label">상 호</span><span class="party-val" id="pv-supName">주원엔지니어링 (주)</span></div>
+                <div class="party-row"><span class="party-label">대 표 자</span><span class="party-val" id="pv-supCeo">홍길동</span></div>
+                <div class="party-row"><span class="party-label">사업자번호</span><span class="party-val" id="pv-supBiz">000-00-00000</span></div>
+                <div class="party-row"><span class="party-label">연 락 처</span><span class="party-val" id="pv-supTel">02-0000-0000</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 품목 테이블 -->
+          <table class="quote-table">
+            <thead>
+              <tr>
+                <th style="width:22px">No</th>
+                <th>품명 / 규격</th>
+                <th style="width:34px">수량</th>
+                <th style="width:36px">단위</th>
+                <th style="width:90px">단가</th>
+                <th style="width:90px">금액</th>
+                <th style="width:60px">비고</th>
+              </tr>
+            </thead>
+            <tbody id="pvItemTbody">
+              <tr class="empty-msg">
+                <td colspan="7">품목을 추가하면 자동으로 표시됩니다</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 합계 -->
+          <div class="quote-totals">
+            <div class="quote-totals-inner">
+              <div class="qt-row">
+                <span>공급가액</span>
+                <span class="qt-val" id="pv-supply">0 원</span>
+              </div>
+              <div class="qt-row" id="pv-discountRow" style="display:none;">
+                <span id="pv-discountLabel">할인 (0%)</span>
+                <span class="qt-val" id="pv-discount" style="color:#dc2626;">- 0 원</span>
+              </div>
+              <div class="qt-row">
+                <span>할인 후 공급가액</span>
+                <span class="qt-val" id="pv-supplyAfter">0 원</span>
+              </div>
+              <div class="qt-row">
+                <span>부가세 (10%)</span>
+                <span class="qt-val" id="pv-vat">0 원</span>
+              </div>
+              <div class="qt-row qt-grand">
+                <span>합 계</span>
+                <span class="qt-val" id="pv-grand">0 원</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 공사기간 -->
+          <div class="quote-remarks" id="pv-periodBox" style="display:none;">
+            <div class="remarks-header">▶ 공 사 기 간</div>
+            <div class="remarks-body" id="pv-period">—</div>
+          </div>
+
+          <!-- 특기사항 -->
+          <div class="quote-remarks">
+            <div class="remarks-header">▶ 특기사항 / 견적조건</div>
+            <div class="remarks-body" id="pv-remarks">—</div>
+          </div>
+
+          <!-- 도장 -->
+          <div class="quote-stamp-row">
+            <div class="quote-stamp">
+              <div>주원</div>
+              <div>엔지니어링</div>
+              <div>(인)</div>
+            </div>
+          </div>
+
+        </div><!-- /quote-preview -->
+      </div><!-- /printArea -->
+    </div>
+
+    <div class="right-actions">
+      <button class="btn btn-primary" onclick="printQuote()" style="flex:1;">🖨 견적서 출력 / PDF 저장</button>
+      <button class="btn btn-outline btn-sm" onclick="resetAll()">초기화</button>
+    </div>
+  </div>
+
+</div><!-- /main-layout -->
+
+
+<!-- ══ LOGIN MODAL ══ -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <h3>🔐 관리자 인증</h3>
+      <button class="modal-close" onclick="closeModal('loginModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="login-box">
+        <h4>관리자 전용</h4>
+        <p>비밀번호를 입력하세요</p>
+        <input type="password" id="adminPwInput" placeholder="••••••" maxlength="20"
+          onkeydown="if(event.key==='Enter')checkLogin()">
+        <p class="login-error" id="loginError">비밀번호가 올바르지 않습니다.</p>
+        <button class="btn btn-primary btn-full" onclick="checkLogin()">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ ADMIN MODAL ══ -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚙️ 관리자 설정</h3>
+      <button class="modal-close" onclick="closeModal('adminModal')">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchTab('tabProducts')">📦 품목 관리</button>
+        <button class="modal-tab" onclick="switchTab('tabCompany')">🏢 회사정보</button>
+        <button class="modal-tab" onclick="switchTab('tabSecurity')">🔒 보안/백업</button>
+      </div>
+
+      <!-- 품목 관리 -->
+      <div class="tab-content active" id="tabProducts">
+        <div class="admin-section">
+          <div class="admin-section-title">품목 트리</div>
+          <div class="product-tree" id="adminTree"></div>
+          <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="toggleAddForm('addCat1Form')">+ 대분류 추가</button>
+          <div class="add-form" id="addCat1Form">
+            <div style="display:flex;gap:8px;align-items:flex-end;">
+              <div class="form-group" style="flex:1;">
+                <label>대분류명</label>
+                <input type="text" id="newCat1Name" placeholder="예: 공조기 본체">
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="addCat1()">추가</button>
+            </div>
+          </div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-200);display:flex;align-items:center;gap:12px;">
+            <button class="btn btn-gold" onclick="saveProductsManual()" style="flex:1;">
+              💾 품목 데이터 저장
+            </button>
+            <span id="saveMsg" style="font-size:12px;color:var(--green);display:none;font-weight:600;">✅ 저장 완료!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 회사정보 -->
+      <div class="tab-content" id="tabCompany">
+        <div class="admin-section">
+          <div class="admin-section-title">공급자 (우리 회사) 정보</div>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>회사명</label>
+              <input type="text" id="companyName" placeholder="주원엔지니어링 (주)">
+            </div>
+            <div class="form-group">
+              <label>대표자</label>
+              <input type="text" id="companyCeo" placeholder="홍길동">
+            </div>
+            <div class="form-group">
+              <label>사업자등록번호</label>
+              <input type="text" id="companyBiz" placeholder="000-00-00000">
+            </div>
+            <div class="form-group full">
+              <label>주소</label>
+              <input type="text" id="companyAddr" placeholder="서울특별시 ○○구 ○○로 000">
+            </div>
+            <div class="form-group">
+              <label>전화</label>
+              <input type="text" id="companyTel" placeholder="02-0000-0000">
+            </div>
+            <div class="form-group">
+              <label>팩스</label>
+              <input type="text" id="companyFax" placeholder="02-0000-0000">
+            </div>
+            <div class="form-group full">
+              <label>이메일</label>
+              <input type="text" id="companyEmail" placeholder="info@juwoneng.com">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveCompanyInfo()">💾 회사정보 저장</button>
+        </div>
+      </div>
+
+      <!-- 보안/백업 -->
+      <div class="tab-content" id="tabSecurity">
+        <div class="admin-section">
+          <div class="admin-section-title">비밀번호 변경</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>현재 비밀번호</label>
+              <input type="password" id="pwCurrent" placeholder="현재 비밀번호">
+            </div>
+            <div class="form-group">
+              <label>새 비밀번호</label>
+              <input type="password" id="pwNew" placeholder="새 비밀번호">
+            </div>
+            <div class="form-group">
+              <label>새 비밀번호 확인</label>
+              <input type="password" id="pwConfirm" placeholder="다시 입력">
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="changePassword()">비밀번호 변경</button>
+        </div>
+        <div class="sep"></div>
+        <div class="admin-section">
+          <div class="admin-section-title">데이터 백업 / 복원</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-outline" onclick="exportData()">📤 데이터 내보내기 (JSON)</button>
+            <label class="btn btn-outline" style="cursor:pointer;">
+              📥 데이터 가져오기 (JSON)
+              <input type="file" accept=".json" style="display:none;" onchange="importData(event)">
+            </label>
+          </div>
+          <p style="font-size:11px;color:var(--gray-400);margin-top:10px;">
+            ※ 내보내기로 품목·회사정보를 백업하고, 새 PC에서 가져오기로 복원할 수 있습니다.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA STORE
+// ══════════════════════════════════════════════
+const DEFAULT_PW = '1234';
+const DEFAULT_PRODUCTS = [];
+
+const DEFAULT_COMPANY = {
+  name: '',
+  ceo: '',
+  biz: '',
+  addr: '',
+  tel: '',
+  fax: '',
+  email: ''
+};
+
+
+function loadData(key, def) {
+  try {
+    const val = localStorage.getItem(key);
+    if (val === null || val === undefined) return def;
+    const parsed = JSON.parse(val);
+    if (parsed === null || parsed === undefined) return def;
+    return parsed;
+  } catch(e) { return def; }
+}
+function saveData(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+}
+
+let products = loadData('jw_products', DEFAULT_PRODUCTS);
+let company  = loadData('jw_company', DEFAULT_COMPANY);
+let adminPw  = loadData('jw_pw', DEFAULT_PW);
+let quoteItems = [];
+let quoteSeq = loadData('jw_seq', 1);
+
+// ══════════════════════════════════════════════
+//  MOBILE TAB SWITCH
+// ══════════════════════════════════════════════
+function switchMobileTab(tab) {
+  const isMobile = window.innerWidth <= 900;
+  if (!isMobile) return;
+  const panelInput   = document.getElementById('panelInput');
+  const panelPreview = document.getElementById('panelPreview');
+  const btnInput     = document.getElementById('mTabInput');
+  const btnPreview   = document.getElementById('mTabPreview');
+
+  if (tab === 'input') {
+    panelInput.classList.add('tab-active');
+    panelPreview.classList.remove('tab-active');
+    btnInput.classList.add('active');
+    btnPreview.classList.remove('active');
+  } else {
+    panelPreview.classList.add('tab-active');
+    panelInput.classList.remove('tab-active');
+    btnPreview.classList.add('active');
+    btnInput.classList.remove('active');
+  }
+}
+
+function initPanels() {
+  const isMobile = window.innerWidth <= 900;
+  const panelInput   = document.getElementById('panelInput');
+  const panelPreview = document.getElementById('panelPreview');
+  const tabNav       = document.querySelector('.mobile-tab-nav');
+  if (!isMobile) {
+    panelInput.classList.add('tab-active');
+    panelPreview.classList.add('tab-active');
+  } else {
+    panelInput.classList.add('tab-active');
+    panelPreview.classList.remove('tab-active');
+    document.getElementById('mTabInput').classList.add('active');
+    document.getElementById('mTabPreview').classList.remove('active');
+  }
+}
+window.addEventListener('resize', initPanels);
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+window.onload = function() {
+  initPanels();
+  setTodayDate();
+  setQuoteNum();
+  buildCat1();
+  loadCompanyToForm();
+  updatePreview();
+};
+
+function setTodayDate() {
+  const d = new Date();
+  const s = d.toISOString().split('T')[0];
+  document.getElementById('quoteDate').value = s;
+}
+function setQuoteNum() {
+  const y = new Date().getFullYear();
+  const num = String(quoteSeq).padStart(3,'0');
+  document.getElementById('quoteNum').value = `JW-${y}-${num}`;
+}
+function nextQuoteNum() {
+  quoteSeq++;
+  saveData('jw_seq', quoteSeq);
+  setQuoteNum();
+}
+
+// ══════════════════════════════════════════════
+//  DROPDOWNS
+// ══════════════════════════════════════════════
+function buildCat1() {
+  const sel = document.getElementById('cat1');
+  sel.innerHTML = '';
+  if (!products.length) {
+    sel.innerHTML = '<option value="">-- 대분류 선택 --</option>';
+    return;
+  }
+  products.forEach((c1, i) => {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = c1.name;
+    sel.appendChild(opt);
+  });
+  // 첫 번째 항목 자동 선택
+  sel.value = '0';
+  onCat1Change();
+}
+function onCat1Change() {
+  const i = document.getElementById('cat1').value;
+  const sel2 = document.getElementById('cat2');
+  const sel3 = document.getElementById('cat3');
+  sel3.innerHTML = '<option value="">-- 소분류 선택 --</option>';
+  sel3.disabled = true;
+  document.getElementById('selectedPrice').textContent = '—';
+  document.getElementById('itemSubtotal').value = '';
+  if (i === '') {
+    sel2.innerHTML = '<option value="">-- 중분류 선택 --</option>';
+    sel2.disabled = true;
+    return;
+  }
+  sel2.disabled = false;
+  sel2.innerHTML = '';
+  const children = products[i].children || [];
+  if (!children.length) {
+    sel2.innerHTML = '<option value="">-- 중분류 없음 --</option>';
+    return;
+  }
+  children.forEach((c2, j) => {
+    const opt = document.createElement('option');
+    opt.value = `${i}-${j}`; opt.textContent = c2.name;
+    sel2.appendChild(opt);
+  });
+  // 첫 번째 중분류 자동 선택
+  sel2.value = `${i}-0`;
+  onCat2Change();
+}
+function onCat2Change() {
+  const v = document.getElementById('cat2').value;
+  const sel3 = document.getElementById('cat3');
+  document.getElementById('selectedPrice').textContent = '—';
+  document.getElementById('itemSubtotal').value = '';
+  if (!v) { sel3.disabled = true; sel3.innerHTML = '<option value="">-- 소분류 선택 --</option>'; return; }
+  const [i, j] = v.split('-');
+  sel3.disabled = false;
+  sel3.innerHTML = '';
+  const children = (products[i].children[j] || {}).children || [];
+  if (!children.length) {
+    sel3.innerHTML = '<option value="">-- 소분류 없음 --</option>';
+    return;
+  }
+  children.forEach((p, k) => {
+    const opt = document.createElement('option');
+    opt.value = `${i}-${j}-${k}`; opt.textContent = p.name;
+    sel3.appendChild(opt);
+  });
+  // 첫 번째 소분류 자동 선택
+  sel3.value = `${i}-${j}-0`;
+  onCat3Change();
+}
+function onCat3Change() {
+  const v = document.getElementById('cat3').value;
+  if (!v) { document.getElementById('selectedPrice').textContent = '—'; return; }
+  const [i,j,k] = v.split('-');
+  const p = products[i].children[j].children[k];
+  document.getElementById('selectedPrice').textContent = fmt(p.price) + ' 원';
+  calcItemSubtotal();
+}
+function calcItemSubtotal() {
+  const v = document.getElementById('cat3').value;
+  if (!v) return;
+  const [i,j,k] = v.split('-');
+  const p = products[i].children[j].children[k];
+  const qty = parseInt(document.getElementById('itemQty').value)||1;
+  document.getElementById('itemSubtotal').value = fmt(p.price * qty) + ' 원';
+}
+
+// ══════════════════════════════════════════════
+//  ADD / DELETE ITEMS
+// ══════════════════════════════════════════════
+function addItem() {
+  const v = document.getElementById('cat3').value;
+  if (!v) { alert('소분류 품목을 선택해 주세요.'); return; }
+  const [i,j,k] = v.split('-');
+  const p = products[i].children[j].children[k];
+  const qty = parseInt(document.getElementById('itemQty').value)||1;
+  quoteItems.push({ name: p.name, unit: p.unit||'대', qty, price: p.price });
+  renderItems();
+  calcTotals();
+  updatePreview();
+  // 모바일: 추가 후 견적서 탭으로 자동 이동
+  if (window.innerWidth <= 900) {
+    switchMobileTab('preview');
+  }
+}
+function deleteItem(idx) {
+  quoteItems.splice(idx, 1);
+  renderItems();
+  calcTotals();
+  updatePreview();
+}
+function renderItems() {
+  const tbody = document.getElementById('itemTbody');
+  document.getElementById('itemCount').textContent = quoteItems.length;
+  if (!quoteItems.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">품목을 선택하여 추가해 주세요</td></tr>';
+    return;
+  }
+  tbody.innerHTML = quoteItems.map((it, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td class="name-cell">${it.name}</td>
+      <td>${it.qty}</td>
+      <td class="num">${fmt(it.price)}</td>
+      <td class="num">${fmt(it.price*it.qty)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteItem(${i})">✕</button></td>
+    </tr>
+  `).join('');
+}
+function calcTotals() {
+  const supply   = quoteItems.reduce((s,it)=>s+it.price*it.qty, 0);
+  const rate     = Math.min(Math.max(parseFloat(document.getElementById('discountRate').value)||0, 0), 100);
+  const discount = Math.round(supply * rate / 100);
+  const afterDiscount = supply - discount;
+  const vat      = Math.round(afterDiscount * 0.1);
+  const grand    = afterDiscount + vat;
+
+  // 좌측
+  document.getElementById('totalSupply').textContent   = fmt(supply)   + ' 원';
+  document.getElementById('totalDiscount').textContent = '- ' + fmt(discount) + ' 원';
+  document.getElementById('totalVat').textContent      = fmt(vat)      + ' 원';
+  document.getElementById('totalGrand').textContent    = fmt(grand)    + ' 원';
+
+  // 우측 미리보기
+  document.getElementById('pv-supply').textContent      = fmt(supply)       + ' 원';
+  document.getElementById('pv-discount').textContent    = '- ' + fmt(discount) + ' 원';
+  document.getElementById('pv-discountLabel').textContent = `할인 (${rate}%)`;
+  document.getElementById('pv-supplyAfter').textContent = fmt(afterDiscount) + ' 원';
+  document.getElementById('pv-vat').textContent         = fmt(vat)           + ' 원';
+  document.getElementById('pv-grand').textContent       = fmt(grand)         + ' 원';
+
+  // 할인행 표시 여부
+  document.getElementById('pv-discountRow').style.display = discount > 0 ? '' : 'none';
+}
+
+// ══════════════════════════════════════════════
+//  PREVIEW UPDATE
+// ══════════════════════════════════════════════
+function updatePreview() {
+  const get = id => document.getElementById(id);
+  const v   = id => get(id).value || '—';
+
+  get('pv-custName').textContent = v('customerName');
+  get('pv-siteName').textContent = v('siteName');
+  get('pv-custMgr').textContent  = v('customerManager');
+  get('pv-custTel').textContent  = v('customerTel');
+  get('pv-quoteNum').textContent = get('quoteNum').value;
+  const dt = get('quoteDate').value;
+  get('pv-quoteDate').textContent = dt ? `작성일: ${dt}` : '';
+  get('pv-remarks').textContent = get('remarks').value || '—';
+
+  // 공사기간
+  const ws = get('workStart').value;
+  const we = get('workEnd').value;
+  const wp = get('workPeriod').value.trim();
+  let periodText = '';
+  if (ws || we) periodText = `착공: ${ws||'미정'}  ~  준공: ${we||'미정'}`;
+  if (wp) periodText += (periodText ? '\n' : '') + wp;
+  if (periodText) {
+    get('pv-period').textContent = periodText;
+    get('pv-periodBox').style.display = '';
+  } else {
+    get('pv-periodBox').style.display = 'none';
+  }
+
+  // items
+  const pvBody = document.getElementById('pvItemTbody');
+  if (!quoteItems.length) {
+    pvBody.innerHTML = '<tr class="empty-msg"><td colspan="7">품목을 추가하면 자동으로 표시됩니다</td></tr>';
+  } else {
+    pvBody.innerHTML = quoteItems.map((it,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td class="q-name">${it.name}</td>
+        <td>${it.qty}</td>
+        <td>${it.unit}</td>
+        <td class="q-num">${fmt(it.price)}</td>
+        <td class="q-num">${fmt(it.price*it.qty)}</td>
+        <td></td>
+      </tr>
+    `).join('');
+  }
+  calcTotals();
+  loadCompanyToPreview();
+}
+
+function loadCompanyToPreview() {
+  const c = company;
+  document.getElementById('pv-companyName').textContent = c.name || '주원엔지니어링 (주)';
+  document.getElementById('pv-supName').textContent  = c.name  || '—';
+  document.getElementById('pv-supCeo').textContent   = c.ceo   || '—';
+  document.getElementById('pv-supBiz').textContent   = c.biz   || '—';
+  document.getElementById('pv-supTel').textContent   = c.tel   || '—';
+  document.getElementById('pv-companyInfo').innerHTML =
+    `대표: ${c.ceo||'—'} &nbsp;|&nbsp; 사업자: ${c.biz||'—'}<br>` +
+    `${c.addr||'—'}<br>` +
+    `TEL: ${c.tel||'—'} &nbsp;|&nbsp; FAX: ${c.fax||'—'}`;
+}
+
+// ══════════════════════════════════════════════
+//  PRINT
+// ══════════════════════════════════════════════
+function printQuote() {
+  window.print();
+}
+
+// ══════════════════════════════════════════════
+//  RESET
+// ══════════════════════════════════════════════
+function resetAll() {
+  if (!confirm('모든 입력 내용을 초기화할까요?')) return;
+  quoteItems = [];
+  nextQuoteNum();
+  document.getElementById('customerName').value = '';
+  document.getElementById('customerManager').value = '';
+  document.getElementById('siteName').value = '';
+  document.getElementById('customerTel').value = '';
+  document.getElementById('remarks').value = '';
+  document.getElementById('discountRate').value = '0';
+  document.getElementById('workStart').value = '';
+  document.getElementById('workEnd').value = '';
+  document.getElementById('workPeriod').value = '';
+  setTodayDate();
+  renderItems();
+  updatePreview();
+}
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+function openLoginModal() {
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('adminPwInput').value = '';
+  document.getElementById('loginModal').classList.add('open');
+  setTimeout(()=>document.getElementById('adminPwInput').focus(), 100);
+}
+function checkLogin() {
+  const pw = document.getElementById('adminPwInput').value;
+  if (pw === adminPw) {
+    closeModal('loginModal');
+    openAdminModal();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+function openAdminModal() {
+  loadCompanyToForm();
+  renderAdminTree();
+  document.getElementById('adminModal').classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  // 관리자 모달 닫을 때 드롭다운 즉시 갱신
+  if (id === 'adminModal') {
+    products = loadData('jw_products', DEFAULT_PRODUCTS);
+    buildCat1();
+    // 드롭다운 초기화
+    const cat2 = document.getElementById('cat2');
+    const cat3 = document.getElementById('cat3');
+    cat2.innerHTML = '<option value="">-- 중분류 선택 --</option>';
+    cat3.innerHTML = '<option value="">-- 소분류 선택 --</option>';
+    cat2.disabled = true;
+    cat3.disabled = true;
+    document.getElementById('selectedPrice').textContent = '—';
+    document.getElementById('itemSubtotal').value = '';
+  }
+}
+document.addEventListener('click', e => {
+  ['loginModal','adminModal'].forEach(id => {
+    const m = document.getElementById(id);
+    if (e.target === m) closeModal(id);
+  });
+});
+
+// ══════════════════════════════════════════════
+//  ADMIN TABS
+// ══════════════════════════════════════════════
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+//  ADMIN TREE
+// ══════════════════════════════════════════════
+function renderAdminTree() {
+  const tree = document.getElementById("adminTree");
+  let html = "";
+  products.forEach((c1, i) => {
+    html += "<div class=\"tree-item tree-l1\">";
+    html += "<span class=\"tree-label\">📁 " + c1.name + "</span>";
+    html += "<span class=\"tree-actions\">";
+    html += "<button class=\"btn btn-sm btn-outline\" onclick=\"toggleRename('rename1_" + i + "')\">이름수정</button>";
+    html += "<button class=\"btn btn-sm btn-outline\" onclick=\"toggleAddForm('addCat2Form_" + i + "')\">+ 중분류</button>";
+    html += "<button class=\"btn btn-sm btn-danger\" id=\"dbtn1_" + i + "\" onclick=\"confirmDel('dbtn1_" + i + "', function(){ delCat1(" + i + "); })\">삭제</button>";
+    html += "</span></div>";
+    html += "<div class=\"add-form\" id=\"rename1_" + i + "\">";
+    html += "<div style=\"display:flex;gap:8px;align-items:flex-end;\">";
+    html += "<div class=\"form-group\" style=\"flex:1;\"><label>대분류 새 이름</label>";
+    html += "<input type=\"text\" id=\"rename1val_" + i + "\" value=\"" + c1.name + "\"></div>";
+    html += "<button class=\"btn btn-primary btn-sm\" onclick=\"renameCat1(" + i + ")\">저장</button></div></div>";
+    html += "<div class=\"add-form\" id=\"addCat2Form_" + i + "\">";
+    html += "<div style=\"display:flex;gap:8px;align-items:flex-end;\">";
+    html += "<div class=\"form-group\" style=\"flex:1;\"><label>중분류명</label>";
+    html += "<input type=\"text\" id=\"newCat2Name_" + i + "\" placeholder=\"예: 표준형\"></div>";
+    html += "<button class=\"btn btn-primary btn-sm\" onclick=\"addCat2(" + i + ")\">추가</button>";
+    html += "</div></div>";
+    (c1.children||[]).forEach((c2, j) => {
+      html += "<div class=\"tree-item tree-l2\">";
+      html += "<span class=\"tree-label\">📂 " + c2.name + "</span>";
+      html += "<span class=\"tree-actions\">";
+      html += "<button class=\"btn btn-sm btn-outline\" onclick=\"toggleRename('rename2_" + i + "_" + j + "')\">이름수정</button>";
+      html += "<button class=\"btn btn-sm btn-outline\" onclick=\"toggleAddForm('addCat3Form_" + i + "_" + j + "')\">+ 소분류</button>";
+      html += "<button class=\"btn btn-sm btn-danger\" id=\"dbtn2_" + i + "_" + j + "\" onclick=\"confirmDel('dbtn2_" + i + "_" + j + "', function(){ delCat2(" + i + "," + j + "); })\">삭제</button>";
+      html += "</span></div>";
+      html += "<div class=\"add-form\" id=\"rename2_" + i + "_" + j + "\">";
+      html += "<div style=\"display:flex;gap:8px;align-items:flex-end;\">";
+      html += "<div class=\"form-group\" style=\"flex:1;\"><label>중분류 새 이름</label>";
+      html += "<input type=\"text\" id=\"rename2val_" + i + "_" + j + "\" value=\"" + c2.name + "\"></div>";
+      html += "<button class=\"btn btn-primary btn-sm\" onclick=\"renameCat2(" + i + "," + j + ")\">저장</button></div></div>";
+      html += "<div class=\"add-form\" id=\"addCat3Form_" + i + "_" + j + "\">";
+      html += "<div class=\"add-form-grid triple\">";
+      html += "<div class=\"form-group\"><label>품명/규격</label><input type=\"text\" id=\"newP_name_" + i + "_" + j + "\" placeholder=\"모델명\"></div>";
+      html += "<div class=\"form-group\"><label>단가 (원)</label><input type=\"number\" id=\"newP_price_" + i + "_" + j + "\" placeholder=\"0\"></div>";
+      html += "<div class=\"form-group\"><label>단위</label><input type=\"text\" id=\"newP_unit_" + i + "_" + j + "\" value=\"대\"></div>";
+      html += "</div>";
+      html += "<button class=\"btn btn-primary btn-sm\" onclick=\"addCat3(" + i + "," + j + ")\">추가</button></div>";
+      (c2.children||[]).forEach((p, k) => {
+        html += "<div class=\"tree-item tree-l3\">";
+        html += "<span>📄 " + p.name + " <span style=\"color:#888;font-size:11px;\">[" + (p.unit||"대") + "]</span></span>";
+        html += "<span class=\"tree-actions\">";
+        html += "<span class=\"price\">" + fmt(p.price) + "원</span>";
+        html += "<button class=\"btn btn-sm btn-outline\" onclick=\"toggleRename('editItem_" + i + "_" + j + "_" + k + "')\">수정</button>";
+        html += "<button class=\"btn btn-sm btn-danger\" id=\"dbtn3_" + i + "_" + j + "_" + k + "\" onclick=\"confirmDel('dbtn3_" + i + "_" + j + "_" + k + "', function(){ delCat3(" + i + "," + j + "," + k + "); })\">삭제</button>";
+        html += "</span></div>";
+        html += "<div class=\"add-form\" id=\"editItem_" + i + "_" + j + "_" + k + "\">";
+        html += "<div class=\"add-form-grid triple\">";
+        html += "<div class=\"form-group\"><label>품명/규격</label><input type=\"text\" id=\"editP_name_" + i + "_" + j + "_" + k + "\" value=\"" + p.name + "\"></div>";
+        html += "<div class=\"form-group\"><label>단가 (원)</label><input type=\"number\" id=\"editP_price_" + i + "_" + j + "_" + k + "\" value=\"" + p.price + "\"></div>";
+        html += "<div class=\"form-group\"><label>단위</label><input type=\"text\" id=\"editP_unit_" + i + "_" + j + "_" + k + "\" value=\"" + (p.unit||"대") + "\"></div>";
+        html += "</div>";
+        html += "<button class=\"btn btn-primary btn-sm\" onclick=\"editItem(" + i + "," + j + "," + k + ")\">저장</button></div>";
+      });
+    });
+  });
+  tree.innerHTML = html;
+}
+
+function toggleAddForm(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function saveProductsManual() {
+  saveData('jw_products', products);
+  buildCat1();
+  const msg = document.getElementById('saveMsg');
+  if (msg) {
+    msg.style.display = 'inline';
+    setTimeout(() => { msg.style.display = 'none'; }, 2500);
+  }
+}
+
+function addCat1() {
+  const name = document.getElementById('newCat1Name').value.trim();
+  if (!name) { alert('대분류명을 입력해 주세요.'); return; }
+  products.push({ id: 'c'+Date.now(), name, children: [] });
+  saveData('jw_products', products);
+  buildCat1(); renderAdminTree();
+  document.getElementById('newCat1Name').value = '';
+  document.getElementById('addCat1Form').classList.remove('open');
+}
+function addCat2(i) {
+  const name = document.getElementById(`newCat2Name_${i}`).value.trim();
+  if (!name) { alert('중분류명을 입력해 주세요.'); return; }
+  if (!products[i].children) products[i].children = [];
+  products[i].children.push({ id: 'c'+Date.now(), name, children: [] });
+  saveData('jw_products', products);
+  buildCat1(); renderAdminTree();
+}
+function addCat3(i, j) {
+  const name  = document.getElementById(`newP_name_${i}_${j}`).value.trim();
+  const price = parseInt(document.getElementById(`newP_price_${i}_${j}`).value)||0;
+  const unit  = document.getElementById(`newP_unit_${i}_${j}`).value.trim()||'대';
+  if (!name) { alert('품명을 입력해 주세요.'); return; }
+  if (!products[i].children[j].children) products[i].children[j].children = [];
+  products[i].children[j].children.push({ id: 'p'+Date.now(), name, price, unit });
+  saveData('jw_products', products);
+  buildCat1(); renderAdminTree();
+}
+function delCat1(i) {
+  const name = products[i].name;
+  products.splice(i,1);
+  saveData('jw_products', products);
+  buildCat1(); renderAdminTree();
+  showSaveMsg('"' + name + '" 대분류가 삭제되었습니다.');
+}
+function delCat2(i,j) {
+  const name = products[i].children[j].name;
+  products[i].children.splice(j,1);
+  saveData('jw_products', products);
+  buildCat1(); renderAdminTree();
+  showSaveMsg('"' + name + '" 중분류가 삭제되었습니다.');
+}
+function delCat3(i,j,k) {
+  const name = products[i].children[j].children[k].name;
+  products[i].children[j].children.splice(k,1);
+  saveData('jw_products', products);
+  buildCat1(); renderAdminTree();
+  showSaveMsg('"' + name + '" 품목이 삭제되었습니다.');
+}
+function confirmDel(btnId, fn) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  if (btn.dataset.confirm === '1') {
+    fn();
+  } else {
+    btn.dataset.confirm = '1';
+    btn.textContent = '정말 삭제?';
+    btn.style.background = '#7f1d1d';
+    setTimeout(() => {
+      if (btn) { btn.dataset.confirm = ''; btn.textContent = '삭제'; btn.style.background = ''; }
+    }, 2500);
+  }
+}
+function showSaveMsg(txt) {
+  const msg = document.getElementById('saveMsg');
+  if (!msg) return;
+  msg.textContent = '✅ ' + txt;
+  msg.style.display = 'inline';
+  setTimeout(() => { msg.style.display = 'none'; msg.textContent = '✅ 저장 완료!'; }, 2500);
+}
+function editPrice(i,j,k) {
+  const p = products[i].children[j].children[k];
+  const np = prompt(`"${p.name}" 단가 수정\n현재: ${fmt(p.price)}원`, p.price);
+  if (np === null) return;
+  const v = parseInt(np);
+  if (isNaN(v)) { alert('올바른 숫자를 입력해 주세요.'); return; }
+  products[i].children[j].children[k].price = v;
+  saveData('jw_products', products);
+  renderAdminTree();
+}
+
+function toggleRename(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+function renameCat1(i) {
+  const nw = document.getElementById("rename1val_" + i).value.trim();
+  if (!nw) { alert("이름을 입력해 주세요."); return; }
+  products[i].name = nw;
+  saveData("jw_products", products);
+  buildCat1(); renderAdminTree();
+}
+function renameCat2(i,j) {
+  const nw = document.getElementById("rename2val_" + i + "_" + j).value.trim();
+  if (!nw) { alert("이름을 입력해 주세요."); return; }
+  products[i].children[j].name = nw;
+  saveData("jw_products", products);
+  buildCat1(); renderAdminTree();
+}
+function editItem(i,j,k) {
+  const name  = document.getElementById("editP_name_"  + i + "_" + j + "_" + k).value.trim();
+  const price = document.getElementById("editP_price_" + i + "_" + j + "_" + k).value;
+  const unit  = document.getElementById("editP_unit_"  + i + "_" + j + "_" + k).value.trim();
+  if (!name) { alert("품명을 입력해 주세요."); return; }
+  const v = parseInt(price);
+  if (isNaN(v)) { alert("올바른 단가를 입력해 주세요."); return; }
+  const p = products[i].children[j].children[k];
+  products[i].children[j].children[k] = { ...p, name, price: v, unit: unit||"대" };
+  saveData("jw_products", products);
+  buildCat1(); renderAdminTree();
+}
+
+// ══════════════════════════════════════════════
+//  COMPANY
+// ══════════════════════════════════════════════
+function loadCompanyToForm() {
+  document.getElementById('companyName').value  = company.name  || '';
+  document.getElementById('companyCeo').value   = company.ceo   || '';
+  document.getElementById('companyBiz').value   = company.biz   || '';
+  document.getElementById('companyAddr').value  = company.addr  || '';
+  document.getElementById('companyTel').value   = company.tel   || '';
+  document.getElementById('companyFax').value   = company.fax   || '';
+  document.getElementById('companyEmail').value = company.email || '';
+}
+function saveCompanyInfo() {
+  company = {
+    name:  document.getElementById('companyName').value,
+    ceo:   document.getElementById('companyCeo').value,
+    biz:   document.getElementById('companyBiz').value,
+    addr:  document.getElementById('companyAddr').value,
+    tel:   document.getElementById('companyTel').value,
+    fax:   document.getElementById('companyFax').value,
+    email: document.getElementById('companyEmail').value,
+  };
+  saveData('jw_company', company);
+  loadCompanyToPreview();
+  alert('회사정보가 저장되었습니다.');
+}
+
+// ══════════════════════════════════════════════
+//  PASSWORD
+// ══════════════════════════════════════════════
+function changePassword() {
+  const cur   = document.getElementById('pwCurrent').value;
+  const nw    = document.getElementById('pwNew').value;
+  const conf  = document.getElementById('pwConfirm').value;
+  if (cur !== adminPw) { alert('현재 비밀번호가 올바르지 않습니다.'); return; }
+  if (!nw) { alert('새 비밀번호를 입력해 주세요.'); return; }
+  if (nw !== conf) { alert('새 비밀번호가 일치하지 않습니다.'); return; }
+  adminPw = nw;
+  saveData('jw_pw', adminPw);
+  alert('비밀번호가 변경되었습니다.');
+  document.getElementById('pwCurrent').value = '';
+  document.getElementById('pwNew').value = '';
+  document.getElementById('pwConfirm').value = '';
+}
+
+// ══════════════════════════════════════════════
+//  BACKUP / RESTORE
+// ══════════════════════════════════════════════
+function exportData() {
+  const data = { products, company, pw: adminPw, seq: quoteSeq };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `주원견적서_백업_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const raw = e.target.result;
+      const data = JSON.parse(raw);
+
+      // localStorage 에 직접 저장
+      if (data.products && Array.isArray(data.products)) {
+        localStorage.setItem('jw_products', JSON.stringify(data.products));
+      }
+      if (data.company) {
+        localStorage.setItem('jw_company', JSON.stringify(data.company));
+      }
+      if (data.pw) {
+        localStorage.setItem('jw_pw', JSON.stringify(data.pw));
+      }
+      if (data.seq) {
+        localStorage.setItem('jw_seq', JSON.stringify(data.seq));
+      }
+
+      // 저장 확인
+      const check = localStorage.getItem('jw_products');
+      if (check) {
+        alert('복원 완료! 대분류 ' + JSON.parse(check).length + '개 - 새로고침합니다.');
+        setTimeout(function() { location.reload(); }, 500);
+      } else {
+        alert('저장 실패! 브라우저 설정을 확인해 주세요.');
+      }
+    } catch(err) {
+      alert('오류: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════
+function fmt(n) {
+  return n.toLocaleString('ko-KR');
+}
+</script>
+</body>
+</html>
